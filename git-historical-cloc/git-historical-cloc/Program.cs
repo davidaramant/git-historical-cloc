@@ -4,9 +4,13 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using LibGit2Sharp;
 
 namespace GitHistoricalCloc
 {
+    using CommitCounts = ImmutableDictionary<string, string>;
+
     class Program
     {
         static void Main(string[] args)
@@ -24,6 +28,8 @@ namespace GitHistoricalCloc
             }
 
             var clocHistory = CaptureHistory(repoPath, branch: "master");
+
+            OutputResults(clocHistory);
         }
 
         private static void ShowHelpAndExit()
@@ -32,19 +38,40 @@ namespace GitHistoricalCloc
             Environment.Exit(1);
         }
 
-        private static object CaptureHistory(string repoPath, string branch)
+        private static List<(DateTimeOffset When, CommitCounts Counts)> CaptureHistory(string repoPath, string branch)
         {
-            var result = RunCloc(repoPath);
+            const string clocBranchName = "git-historical-cloc";
 
-            foreach (var pair in result)
+            using var repo = new Repository(repoPath);
+
+            var targetBranch = repo.Branches[branch];
+            var targetCommits = targetBranch.Commits;
+
+            var clocBranch = repo.Branches[clocBranchName];
+            if (clocBranch == null)
             {
-                Console.Out.WriteLine($"{pair.Key}: {pair.Value}");
+                clocBranch = repo.CreateBranch(clocBranchName);
             }
 
-            return null;
+            Commands.Checkout(repo, clocBranch);
+
+            var historicalData = new List<(DateTimeOffset When, CommitCounts Counts)>();
+
+            foreach (var commit in targetCommits.OrderBy(c => c.Committer.When))
+            {
+                repo.Reset(ResetMode.Hard, commit);
+                var commitCounts = RunCloc(repoPath);
+                historicalData.Add((commit.Committer.When, commitCounts));
+            }
+
+            Commands.Checkout(repo, targetBranch);
+
+            repo.Branches.Remove(clocBranchName);
+
+            return historicalData;
         }
 
-        private static ImmutableDictionary<string, string> RunCloc(string path)
+        private static CommitCounts RunCloc(string path)
         {
             var clocInfo = new ProcessStartInfo
             {
@@ -82,6 +109,29 @@ namespace GitHistoricalCloc
             return languageToLines.ToImmutableDictionary();
         }
 
+        private static void OutputResults(List<(DateTimeOffset When, CommitCounts Counts)> history)
+        {
+            string CsvLine(IEnumerable<string> columns) => 
+                string.Join(',', columns.Select(col=>$"\"{col.Replace("\"","\"\"\"")}\""));
+            
+            var allLanguages = new HashSet<string>(history.SelectMany(pair=>pair.Counts.Keys));
 
+            var outputPath = "results.csv";
+
+            using var outputFile = new FileStream(outputPath, FileMode.Create);
+            using var writer = new StreamWriter(outputFile);
+
+            void AddRow(IEnumerable<string> columns) => writer.WriteLine(CsvLine(columns));
+
+            AddRow(new[]{"Date"}.Concat(allLanguages));
+
+            foreach (var (when, counts) in history)
+            {
+                AddRow(
+                    new []{when.DateTime.ToString("s")}
+                        .Concat(allLanguages.Select(name=>counts.TryGetValue(name,out var realCount) ? realCount : "0")));
+            }
+
+        }
     }
 }
