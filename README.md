@@ -24,7 +24,7 @@ MIT
 ## :warning: What it does to the target repo
 
 * All untracked files in the target repo will be blown away.
-* The utility will make a new temporary branch and hard-reset it to every commit on the `master` branch.
+* The utility will make a new temporary branch and hard-reset it to every commit on the `master` branch.  The temporary branch will be removed when done and `master` will be checked out.
 
 ## TODO
 
