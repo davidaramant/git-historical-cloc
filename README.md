@@ -1,6 +1,6 @@
 # git-historical-cloc
 
-This is a .NET Core command line utility that runs [CLOC](http://cloc.sourceforge.net) on each commit of a git repo and spits out a CSV file.  The results CSV file has one column for each language found.  It ignores blank lines & comments.  The CSV file can be charted with something like Google Sheets to see the repo change over time.
+This is a .NET Core command line utility that runs [CLOC](https://github.com/AlDanial/cloc) on each commit of a git repo and spits out a CSV file.  The results CSV file has one column for each language found.  It ignores blank lines & comments.  The CSV file can be charted with something like Google Sheets to see the repo change over time.
 
 I'm sure this utility already exists somewhere in some form, but the easiest way to find it was probably to write my own and wait for people to tell me about it :upside_down_face:
 
