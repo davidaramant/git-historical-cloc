@@ -63,11 +63,11 @@ namespace GitHistoricalCloc
 
             using (var progressBar = new ProgressBar(commitCount, "Examining commits..."))
             {
-                foreach (var commit in targetCommits.OrderBy(c => c.Committer.When))
+                foreach (var commit in targetCommits)
                 {
                     repo.Reset(ResetMode.Hard, commit);
                     var commitCounts = RunCloc(repoPath);
-                    historicalData.Add((commit.Committer.When, commitCounts));
+                    historicalData.Add((commit.Author.When, commitCounts));
 
                     progressBar.Tick();
                 }
