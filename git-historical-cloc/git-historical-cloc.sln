@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30523.141
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "git-historical-cloc", "git-historical-cloc\git-historical-cloc.csproj", "{4800F7AA-96BD-48A6-AD28-63ABF90CD041}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4800F7AA-96BD-48A6-AD28-63ABF90CD041}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4800F7AA-96BD-48A6-AD28-63ABF90CD041}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4800F7AA-96BD-48A6-AD28-63ABF90CD041}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4800F7AA-96BD-48A6-AD28-63ABF90CD041}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8FA7D2D2-994B-41CC-AD6C-D1E993DAF42B}
+	EndGlobalSection
+EndGlobal
