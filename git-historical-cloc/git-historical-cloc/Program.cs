@@ -67,7 +67,7 @@ namespace GitHistoricalCloc
                 {
                     repo.Reset(ResetMode.Hard, commit);
                     var commitCounts = RunCloc(repoPath);
-                    historicalData.Add((commit.Author.When, commitCounts));
+                    historicalData.Add((commit.Committer.When, commitCounts));
 
                     progressBar.Tick();
                 }
