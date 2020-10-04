@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using LibGit2Sharp;
+using ShellProgressBar;
 
 namespace GitHistoricalCloc
 {
@@ -54,14 +55,22 @@ namespace GitHistoricalCloc
             }
 
             Commands.Checkout(repo, clocBranch);
+            repo.RemoveUntrackedFiles();
 
             var historicalData = new List<(DateTimeOffset When, CommitCounts Counts)>();
 
-            foreach (var commit in targetCommits.OrderBy(c => c.Committer.When))
+            var commitCount = targetCommits.Count();
+
+            using (var progressBar = new ProgressBar(commitCount, "Examining commits..."))
             {
-                repo.Reset(ResetMode.Hard, commit);
-                var commitCounts = RunCloc(repoPath);
-                historicalData.Add((commit.Committer.When, commitCounts));
+                foreach (var commit in targetCommits.OrderBy(c => c.Committer.When))
+                {
+                    repo.Reset(ResetMode.Hard, commit);
+                    var commitCounts = RunCloc(repoPath);
+                    historicalData.Add((commit.Committer.When, commitCounts));
+
+                    progressBar.Tick();
+                }
             }
 
             Commands.Checkout(repo, targetBranch);
@@ -97,8 +106,8 @@ namespace GitHistoricalCloc
             foreach (var line in resultLines)
             {
                 var columns = line.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                var language = columns[1];
-                var total = columns[4];
+                var language = columns[1].Trim();
+                var total = columns[4].Trim();
 
                 if (language != "SUM")
                 {
@@ -111,10 +120,10 @@ namespace GitHistoricalCloc
 
         private static void OutputResults(List<(DateTimeOffset When, CommitCounts Counts)> history)
         {
-            string CsvLine(IEnumerable<string> columns) => 
-                string.Join(',', columns.Select(col=>$"\"{col.Replace("\"","\"\"\"")}\""));
-            
-            var allLanguages = new HashSet<string>(history.SelectMany(pair=>pair.Counts.Keys));
+            string CsvLine(IEnumerable<string> columns) =>
+                string.Join(',', columns.Select(col => $"\"{col.Replace("\"", "\"\"\"")}\""));
+
+            var allLanguages = new HashSet<string>(history.SelectMany(pair => pair.Counts.Keys));
 
             var outputPath = "results.csv";
 
@@ -123,15 +132,16 @@ namespace GitHistoricalCloc
 
             void AddRow(IEnumerable<string> columns) => writer.WriteLine(CsvLine(columns));
 
-            AddRow(new[]{"Date"}.Concat(allLanguages));
+            AddRow(new[] { "Date" }.Concat(allLanguages));
 
             foreach (var (when, counts) in history)
             {
                 AddRow(
-                    new []{when.DateTime.ToString("s")}
-                        .Concat(allLanguages.Select(name=>counts.TryGetValue(name,out var realCount) ? realCount : "0")));
+                    new[] { when.DateTime.ToString("s").Replace('T', ' ') }
+                        .Concat(allLanguages.Select(name => counts.TryGetValue(name, out var realCount) ? realCount : "0")));
             }
 
+            Console.Out.WriteLine($"Wrote results to {outputPath}");
         }
     }
 }
