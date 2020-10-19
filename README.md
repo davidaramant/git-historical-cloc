@@ -35,6 +35,7 @@ MIT
 ## TODO
 
 * Allow specifying a commit to start with to allow incremental updates
+* Sort the columns by size so they aren't essentially random
 * Allow specifying other branches
 * Allow specifying an output filename
 * More error handling (is the given directory actually a git repo?)
