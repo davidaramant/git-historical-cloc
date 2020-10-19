@@ -29,11 +29,12 @@ MIT
 ## :warning: What it does to the target repo
 
 * All untracked files in the target repo will be blown away.
-* The utility will make a new temporary branch and hard-reset it to every commit on the `master` branch.  The temporary branch will be removed when done and `master` will be checked out.
+* The utility will make a new temporary branch and hard-reset it to every commit on the `master` branch.  
+* The temporary branch will be removed when done and `master` will be checked out.
 
 ## TODO
 
-* Allow specifying a commit to start with so you don't have to check every commit
+* Allow specifying a commit to start with to allow incremental updates
 * Allow specifying other branches
 * Allow specifying an output filename
 * More error handling (is the given directory actually a git repo?)
