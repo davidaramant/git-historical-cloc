@@ -147,6 +147,8 @@ namespace GitHistoricalCloc
 
             AddRow(new[] { "Sha", "Date" }.Concat(allLanguages));
 
+            history.Reverse();
+
             foreach (var commitInfo in history)
             {
                 AddRow(
